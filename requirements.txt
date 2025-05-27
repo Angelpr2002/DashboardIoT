@@ -1,0 +1,4 @@
+kivy==2.2.1
+requests==2.31.0
+pyopenssl==24.1.0
+cryptography==42.0.7
