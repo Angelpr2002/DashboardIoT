@@ -1,37 +1,53 @@
-name: Build APK
+name: Build Kivy APK
 
-on: [push]
-
-# Permisos necesarios para subir el APK
-permissions:
-  contents: write
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Permite ejecución manual
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 60  # Extiende el timeout
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4  # Usa la versión actualizada
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libtinfo5 cmake libffi-dev libssl-dev libxml2-dev libxslt1-dev
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Install Buildozer
-        run: pip install buildozer
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev libxml2-dev libxslt-dev
 
-      - name: Accept Android licenses
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | sdkmanager --licenses
+    - name: Install Buildozer
+      run: |
+        pip install --upgrade Cython==0.29.36 virtualenv
+        pip install buildozer==1.5.0
 
-      - name: Generate APK
-        run: buildozer -v android debug
+    - name: Configure Android NDK
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
+        unzip android-ndk-r25b-linux.zip
+        mkdir -p ~/.buildozer/android/platform
+        mv android-ndk-r25b ~/.buildozer/android/platform/
+        echo "ANDROID_NDK_HOME=~/.buildozer/android/platform/android-ndk-r25b" >> $GITHUB_ENV
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4  # Versión actualizada
-        with:
-          name: app-debug
-          path: bin/*.apk  # Verifica que la ruta sea correcta
+    - name: Build APK
+      run: |
+        buildozer -v android debug
+        # Si falla, muestra el log
+        if [ $? -ne 0 ]; then
+          cat buildozer.log
+          exit 1
+        fi
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: iot-dashboard-apk
+        path: bin/*.apk
