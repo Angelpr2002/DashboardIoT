@@ -9,6 +9,11 @@ import json
 import os
 from datetime import datetime
 
+try:
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.INTERNET])
+except:
+    pass
 THINGSBOARD_TOKEN = os.getenv('THINGSBOARD_TOKEN', 'pCNDucPvl95tmuzPzNzE')
 THINGSBOARD_URL = f"https://thingsboard.cloud/api/v1/{THINGSBOARD_TOKEN}/telemetry"
 
