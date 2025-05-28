@@ -4,7 +4,7 @@ package.name = iotdashboard
 package.domain = org.user
 source.dir = .
 source.include_exts = py
-version = 1.0.0
+version = 1.0.2
 requirements = 
     python3 ==3.10.13,
     kivy ==2.2.1,
@@ -17,7 +17,7 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 p4a.branch = master
-android.arch = armeabi-v7a  # Solo ARMv7 para mayor compatibilidad
+android.arch = armeabi-v7a
 
 [buildozer]
-log_level = 1  # Reduce el tamaño del log
+log_level = 1
