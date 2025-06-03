@@ -7,7 +7,12 @@ import requests
 import json
 import os
 from datetime import datetime
+from kivy.utils import platform
 
+# Agrega esto ANTES de crear la aplicación
+if platform == 'android':
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.INTERNET])
 # Manejo de permisos para Android
 try:
     from android.permissions import request_permissions, Permission
